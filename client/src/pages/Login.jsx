@@ -2,7 +2,7 @@ import { BsGoogle } from "react-icons/bs";
 import { useState } from "react";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from "../libs/firebase";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { GoogleAuthProvider } from "firebase/auth";
 import { setUser } from "../features/actions/userActions";
@@ -18,27 +18,33 @@ const Login = () => {
 
   const onLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setMessage("");
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        dispatch({
-          type: "LOGIN_SUCCESS",
-          payload: user.uid,
+    try {
+      setIsLoading(true);
+      setMessage("");
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user, 'USER');
+          dispatch({
+            type: "LOGIN_SUCCESS",
+            payload: user.uid,
+          });
+          localStorage.setItem("uid", user.uid);
+          navigate("/profile");
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+          setMessage("Email or password is incorrect");
+          setIsLoading(false);
         });
-        localStorage.setItem("uid", user.uid);
-        navigate("/home");
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-        setMessage("Email or password is incorrect");
-        setIsLoading(false);
-      });
+    } catch (error) {
+      console.log(error, "error 1");
+    }
+    
   };
 
   const provider = new GoogleAuthProvider();
@@ -47,16 +53,22 @@ const Login = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      console.log(user);
-      dispatch(setUser(user));
+      console.log(user, "USER");
+      console.log(user, "checkpoint2");
       if (user) {
-        dispatch({ type: "LOGIN_SUCCESS", payload: user.uid });
+        console.log("checkpoint");
+        dispatch(setUser({
+          displayName : user.displayName,
+          email : user.email,
+          uid : user.uid,
+          photoURL : user.photoURL
+        }));
         localStorage.setItem("uid", user.uid);
 
-        navigate("/home");
+        navigate("/profile");
       }
     } catch (error) {
-      console.log(error);
+      console.log(error, "error 2");
     }
   };
 
@@ -119,9 +131,9 @@ const Login = () => {
 
         <p className="text-sm">
           Don{"'"}t have an account?{" "}
-          <a href="/register" className="text-slate-800">
+          <Link to={"/register"} className="text-slate-800">
             Register
-          </a>
+          </Link>
         </p>
       </form>
     </div>

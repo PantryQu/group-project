@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { auth } from "../libs/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [values, setValues] = useState({
@@ -112,9 +113,9 @@ const Register = () => {
         </button>
         <p className="text-sm">
           Have an account?{" "}
-          <a href="/login" className="text-slate-800">
+          <Link to={"/login"} className="text-slate-800">
             Login
-          </a>
+          </Link>
         </p>
       </form>
     </div>
