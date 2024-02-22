@@ -2,6 +2,7 @@ import { signOut } from "firebase/auth";
 import { FaBookmark, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { auth } from "../libs/firebase";
 import { useSelector } from "react-redux";
+import { BsChat } from "react-icons/bs";
 
 const Navbar = () => {
   const user = useSelector((state) => state.user.user);
@@ -9,6 +10,7 @@ const Navbar = () => {
   const onLogout = async () => {
     await signOut(auth);
     localStorage.removeItem("uid");
+    localStorage.removeItem("chatId");
     window.location.href = "/login";
   };
 
@@ -24,6 +26,9 @@ const Navbar = () => {
           </a>
           <a href="/profile" className="p-2 rounded-sm border">
             <FaUser />
+          </a>
+          <a href="/chat" className="p-2 rounded-sm border">
+            <BsChat />
           </a>
           <button
             onClick={() => onLogout()}
