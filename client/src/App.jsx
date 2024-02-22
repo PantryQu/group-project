@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, redirect ,BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -41,12 +41,11 @@ function App() {
           })
           .then(() => {
             if (publicPage.includes(pathname) && user) {
-              window.location.href = "/";
+              // redirect('/')
               return null;
             }
-
             if (privatePage.includes(pathname) && !user) {
-              window.location.href = "/login";
+              redirect('/login')
               return null;
             }
 
@@ -61,22 +60,128 @@ function App() {
     });
   }, [pathname]);
 
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: 
+      <div>
+        <Navbar />
+        <Home />
+        <Footer />
+      </div>,
+      loader : async () => {
+        if(!localStorage.getItem('uid')){
+          throw redirect('/login')
+        }
+        return null
+      }
+    },
+    {
+      path: "/chat",
+      element: 
+      <div>
+        <Navbar />
+        <Chat />
+      </div>,
+      loader : async () => {
+        if(!localStorage.getItem('uid')){
+          throw redirect('/login')
+        }
+        return null
+      }
+    },
+    {
+      path: "/chat/:id",
+      element: 
+      <div>
+        <Navbar />
+        <DetailChat />
+      </div>,
+      loader : async () => {
+        if(!localStorage.getItem('uid')){
+          throw redirect('/login')
+        }
+        return null
+      }
+    },
+    {
+      path: "/bookmarks",
+      element: 
+      <div>
+        <Navbar />
+        <Bookmarks />
+        <Footer />
+      </div>,
+      loader : async () => {
+        if(!localStorage.getItem('uid')){
+          throw redirect('/login')
+        }
+        return null
+      }
+    },
+    {
+      path: "/profile",
+      element: 
+      <div>
+        <Navbar />
+        <Profile />
+        <Footer />
+      </div>,
+      loader : async () => {
+        if(!localStorage.getItem('uid')){
+          throw redirect('/login')
+        }
+        return null
+      }
+    },
+    {
+      path: "/recipe/:id",
+      element: 
+      <div>
+        <Navbar />
+        <DetailRecipe />
+        <Footer />
+      </div>,
+      loader : async () => {
+        if(!localStorage.getItem('uid')){
+          throw redirect('/login')
+        }
+        return null
+      }
+    },
+    {
+      path: "/login",
+      element: 
+      <div>
+        <Login />
+        <Footer />
+      </div>,
+      loader : async () => {
+        if(localStorage.getItem('uid')){
+          throw redirect('/')
+        }
+        return null
+      }
+    },
+    {
+      path: "/register",
+      element: 
+      <div>
+        <Register />
+        <Footer />
+      </div>,
+      loader : async () => {
+        if(localStorage.getItem('uid')){
+          throw redirect('/')
+        }
+        return null
+      }
+    },
+  ]);
+
   return (
     <>
-      <Router>
-        {!publicPage.includes(pathname) && <Navbar />}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/:id" element={<DetailChat />} />
-          <Route path="/bookmarks" element={<Bookmarks />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/recipe/:id" element={<DetailRecipe />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-        {!pathname.includes("/chat") && <Footer />}
-      </Router>
+      <RouterProvider router={router} />
     </>
   );
 }
